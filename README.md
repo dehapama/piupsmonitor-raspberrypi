@@ -17,6 +17,14 @@ use it on your own risk.**
 
 * `libi2c-dev`     \# Bibliothek fuer C
 
+## Configure ##
+
+Enable I2C
+
+    sudo raspi-config
+
+Go to "5 Interfacing Options" -> "I2C" -> select Yes
+and reboot.
 
 # Install #
 
