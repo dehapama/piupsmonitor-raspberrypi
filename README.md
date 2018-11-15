@@ -1,8 +1,8 @@
 # piupsmonitor
-Programm to monitor the PiUPS+ module for the raspberry pi
+Programm to monitor the PiUPS+ (PiUSV+) module for the raspberry pi.
 
-This programm is a replacement for the original piupsmon which lacks the
-availabity of source code.
+This programm is a replacement for the original *piupsmon* which lacks the
+availability of source code.
 
 **So far the function for shutting down is not tested in reality (as of 2018-11-15). So
 use it on your own risk.**
