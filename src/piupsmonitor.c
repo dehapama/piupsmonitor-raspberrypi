@@ -174,6 +174,7 @@ void print_settings()
   logprintf(LOGLEVEL_NOTICE,"LogLevel: %d",settings.log_status_desc);
   logprintf(LOGLEVEL_NOTICE,"ButtonPressedCmd: %s",settings.button_pressed_cmd);
   logprintf(LOGLEVEL_NOTICE,"LogFile: %s",settings.logfile);
+  logprintf(LOGLEVEL_NOTICE,"PID-File: %s",settings.pidfile);
 }
 
 int read_settings() {
@@ -332,13 +333,14 @@ int write_pid_file(const char* prgname) {
   settings.pidfile=strdup(filename);
   fp=fopen(filename,"r");
   if (fp) {
+    fclose(fp);
     logprintf(LOGLEVEL_ERROR,"%s already running (%s)",prgname,filename);
-    return -1;
+    exit(EXIT_FAILURE);
   }
   fp=fopen(filename,"w");
   if (!fp) {
     logprintf(LOGLEVEL_ERROR,"Cannot open %s for writing",filename);
-    return -1;
+    exit(EXIT_FAILURE);
   }
   fprintf(fp,"%d",getpid());
   fclose(fp);
@@ -380,12 +382,23 @@ void cleanup() {
 }
 
 int main(int argc, const char* argv[]) {
-  write_pid_file(argv[0]);
+  
+  if (!(argc==2 && strcmp(argv[1],"poweroff")==0)) {
+    // Don't try do write pid file if the raspberry should poweroff
+    write_pid_file(argv[0]);
+  }
   struct sigaction action;
   memset(&action, 0, sizeof(action));
   action.sa_handler = terminate;
-  sigaction(SIGTERM, &action, NULL);
-  sigaction(SIGINT, &action, NULL);
+  if (sigaction(SIGTERM, &action, NULL)==-1) {
+    perror("Can't set signal handler for SIGTERM");
+    exit(EXIT_FAILURE);
+  }
+  
+  if (sigaction(SIGINT, &action, NULL)==-1) {
+    perror("Can't set signal handler for SIGINT");
+    exit(EXIT_FAILURE);
+  }
 
   /* Geraetedatei oeffnen */
   printf("Opening device...");
@@ -551,7 +564,7 @@ int main(int argc, const char* argv[]) {
   }
 
   // Cleanup
-  cleanup();
+  if (done!=-1) cleanup();
   logprintf(LOGLEVEL_NOTICE,"Terminated by signal %d",done);
 
   return 0;
