@@ -31,6 +31,7 @@ and reboot.
 ### Compile `piusvmonitor.c` ###
 
     cd src
+    mkdir -p ../usr/bin
     gcc -o ../usr/bin/piupsmonitor piupsmonitor.c
     cd ..
     
@@ -44,7 +45,7 @@ The configuration can be changed in `/etc/piupsmonitor/piupsmonitor.conf`
 
 Copy the binary
 
-    sudo cp -a usr/bin/piupsmonitor
+    sudo cp -a usr/bin/piupsmonitor /usr/bin
 
 Copy the init-file if you want to start `piupsmonitor` during boot
 
