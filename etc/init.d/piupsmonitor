@@ -16,8 +16,8 @@ case "$1" in
     start)
         # START
 		echo -n "starting piupsmonitor... "
-		piupsmonitor > /dev/null 2> /dev/null &
-                sleep 2
+		/usr/bin/piupsmonitor > /dev/null 2> /dev/null &
+                sleep 5
                 if [ -f $PIDFILE ]; then
                         echo "done"
                 else
@@ -29,11 +29,12 @@ case "$1" in
         # STOP
 	echo -n "stopping piupsmonitor... "
 	if [ "$RUNLEVEL" = "0" ]; then
-		piupsmonitor poweroff
+		/usr/bin/piupsmonitor poweroff
 	fi
 	if [ -f $PIDFILE ]; then
 		read ppid < "$PIDFILE"
 		kill $ppid
+		sleep 5
                 if [ -f $PIDFILE ]; then
                         echo "failed"
                 else
