@@ -1,0 +1,11 @@
+[Unit]
+Description=Set poweroff time for PiUPS+ (PiUSV+) module for the raspberry pi
+DefaultDependencies=no
+Before=systemd-poweroff.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/piupsmonitor poweroff
+
+[Install]
+WantedBy=poweroff.target

@@ -4,8 +4,12 @@ Programm to monitor the PiUPS+ (PiUSV+) module for the raspberry pi.
 This programm is a replacement for the original *piupsmon* which lacks the
 availability of source code.
 
-**So far the function for shutting down is not tested in reality (as of 2018-11-15). So
-use it on your own risk.**
+I tried to use the original init.d script, but that does not work, due to the fact, that the
+Raspian Os now uses systemd. The PiUSV+ won't power off because the variable RUNLEVEL ist not set during shutdown
+causing the poweroff timer not to be set.
+
+So I created two systemd-services, one to start the daemon in multi-user.target and another to programm the poweroff
+timer on shutdown. By replacing the `/usr/sbin/piupsmonitor` with `/usr/bin/piupsmon` the service might even work with the original *piupsmon*. 
 
 # Reqirements #
 
@@ -31,8 +35,8 @@ and reboot.
 ### Compile `piusvmonitor.c` ###
 
     cd src
-    mkdir -p ../usr/bin
-    gcc -o ../usr/bin/piupsmonitor piupsmonitor.c
+    mkdir -p ../usr/sbin
+    gcc -o ../usr/sbin/piupsmonitor piupsmonitor.c
     cd ..
     
 ### Install config file ###
@@ -45,11 +49,19 @@ The configuration can be changed in `/etc/piupsmonitor/piupsmonitor.conf`
 
 Copy the binary
 
-    sudo cp -a usr/bin/piupsmonitor /usr/bin
+    sudo cp -a usr/sbin/piupsmonitor /usr/sbin
 
-Copy the init-file if you want to start `piupsmonitor` during boot
+Copy the systemd service files if you want to start `piupsmonitor` during boot
 
-    sudo cp -a etc/init.d/piupsmonitor /etc/init.d
+    sudo cp -a etc/systemd/system/piupsmonitor*.service /etc/systemd/system/
+
+and enable the services
+
+    systemctl daemon-reload
+    systemctl enable piupsmonitor.service
+    systemctl start piupsmonitor.service
+    systemctl enable piupsmonitor-poweroff.service
     
-    
+Don't start the `piupsmonitor-poweroff.service` or your Raspberry will poweroff whithout shutting down. The service
+will be started during shutdown to switch off the power after a delay (default 15 seconds).
     

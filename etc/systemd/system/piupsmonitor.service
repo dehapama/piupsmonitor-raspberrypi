@@ -1,0 +1,12 @@
+[Unit]
+Description=Daemon to monitor the PiUPS+ (PiUSV+) module for the raspberry pi
+After=syslog.target
+
+[Service]
+ExecStart=/usr/sbin/piupsmonitor
+Type=simple
+PIDFile=/var/run/piupsmonitor.pid
+TimeoutStartSec=5
+
+[Install]
+WantedBy=multi-user.target
