@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <wctype.h>
+#include <errno.h>
 
 //#define DEBUG
 //#define BUTTON_TEST
@@ -231,7 +232,8 @@ int read_settings() {
 int read_version() {
   int result=i2c_smbus_read_i2c_block_data(device,TWI_CMD_GETVERSION,sizeof(version)-1,(__u8*)&version);
   if (result==-1) {
-    logprintf(LOGLEVEL_ERROR,"Can't read version");
+    int errnum=errno;
+    logprintf(LOGLEVEL_ERROR,"Can't read version: %s (%d)",strerror(errnum),errnum);
   }
   version[sizeof(version)-1]=0;
   logprintf(LOGLEVEL_DEBUG,"Version: %s",version);
@@ -249,7 +251,8 @@ void print_voltage() {
 int read_voltage() {
   int result=i2c_smbus_read_i2c_block_data(device,TWI_CMD_GETVOLTAGE,sizeof(voltage),(__u8*)&voltage);
   if (result==-1) {
-    logprintf(LOGLEVEL_ERROR,"Can't read voltage");
+    int errnum=errno;
+    logprintf(LOGLEVEL_ERROR,"Can't read voltage: %s (%d)",strerror(errnum),errnum);
     nanosleep(&longsleeptime,0);
     return result;
   }
@@ -287,6 +290,7 @@ void print_change_status()
   }
   else
     logprintf(LOGLEVEL_NOTICE,"Status changed from %02x to %02x",status_old.total,status.total);
+  logprintf(LOGLEVEL_NOTICE,"Status changed from %02x to %02x",status_old.total,status.total);
 }
 
 void print_status() {
@@ -301,14 +305,24 @@ void print_status() {
 int read_status() {
   int result=i2c_smbus_read_byte_data(device,TWI_CMD_GETSTATUS);
   if (result==-1) {
-    logprintf(LOGLEVEL_ERROR,"Can't read status");
+    int errnum=errno;
+    logprintf(LOGLEVEL_ERROR,"Can't read status: %s (%d)",strerror(errnum),errnum);
     nanosleep(&longsleeptime,0);
     return result;
   }
+  if (result==0xff) {
+    logprintf(LOGLEVEL_ERROR,"Implausible status %04x read",result);
+    nanosleep(&longsleeptime,0);
+    return -1;
+  }
+    
+  status.total=result & 0xff;
+#if 0  
   char* p=(char*)&status;
   *p=result & 0xff;
+#endif
 #ifdef DEBUG
-  //  printf("Status: %04x\n",result);
+  //  printf("Status: %02x(%04x)\n",status.total,result);
 #endif
   nanosleep(&sleeptime,0);
   return result;

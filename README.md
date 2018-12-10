@@ -36,7 +36,7 @@ and reboot.
 
     cd src
     mkdir -p ../usr/sbin
-    gcc -o ../usr/sbin/piupsmonitor piupsmonitor.c
+    gcc -O -o ../usr/sbin/piupsmonitor piupsmonitor.c
     cd ..
     
 ### Install config file ###
@@ -64,4 +64,15 @@ and enable the services
     
 Don't start the `piupsmonitor-poweroff.service` or your Raspberry will poweroff whithout shutting down. The service
 will be started during shutdown to switch off the power after a delay (default 15 seconds).
+   
+# Problems #
+
+### i2c speed problems ###
+On my Raspberry Pis I get `Remote I/O error (121)` if I use the default i2c
+baudrate. So I reduced it to 40000 and got no errors anymor.
+
+Add the following to `/boot/config.txt`
+
+    dtparam=i2c_baudrate=40000
     
+and reboot.
