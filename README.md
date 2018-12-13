@@ -34,10 +34,8 @@ and reboot.
 
 ### Compile `piusvmonitor.c` ###
 
-    cd src
-    mkdir -p ../usr/sbin
-    gcc -O -o ../usr/sbin/piupsmonitor piupsmonitor.c
-    cd ..
+    mkdir -p usr/sbin
+    gcc -O -o usr/sbin/piupsmonitor src/piupsmonitor.c
     
 ### Install config file ###
 
@@ -57,10 +55,10 @@ Copy the systemd service files if you want to start `piupsmonitor` during boot
 
 and enable the services
 
-    systemctl daemon-reload
-    systemctl enable piupsmonitor.service
-    systemctl start piupsmonitor.service
-    systemctl enable piupsmonitor-poweroff.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable piupsmonitor.service
+    sudo systemctl start piupsmonitor.service
+    sudo systemctl enable piupsmonitor-poweroff.service
     
 Don't start the `piupsmonitor-poweroff.service` or your Raspberry will poweroff whithout shutting down. The service
 will be started during shutdown to switch off the power after a delay (default 15 seconds).
@@ -76,3 +74,12 @@ Add the following to `/boot/config.txt`
     dtparam=i2c_baudrate=40000
     
 and reboot.
+
+This problem is probably caused by the Raspberry Pi I2C clock-stretching
+bug. For more details
+s. e.g. [here](http://www.advamation.com/knowhow/raspberrypi/rpi-i2c-bug.html)
+or ask Google.
+
+By the way the problem exists with the original `piupsmon`, too. There I get
+occasionaly power failures in the logfile. With lowering the i2c baudrate they
+are gone.
