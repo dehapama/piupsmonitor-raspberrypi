@@ -1,8 +1,7 @@
 # piupsmonitor
-Programm to monitor the PiUPS+ (PiUSV+) module for the raspberry pi.
+Program to monitor the PiUPS+ (PiUSV+) module for the raspberry pi.
 
-This programm is a replacement for the original *piupsmon* which lacks the
-availability of source code.
+This program is a replacement for the original *piupsmon* which lacks the availability of source code.
 
 I tried to use the original init.d script, but that does not work, due to the fact, that the
 Raspian Os now uses systemd. The PiUSV+ won't power off because the variable RUNLEVEL ist not set during shutdown
@@ -27,7 +26,7 @@ Enable I2C
 
     sudo raspi-config
 
-Go to "5 Interfacing Options" -> "I2C" -> select Yes
+Go to "3 Interface Options" -> "I5 I2C" -> select Yes
 and reboot.
 
 # Install #
