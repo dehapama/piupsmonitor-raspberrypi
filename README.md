@@ -18,7 +18,11 @@ timer on shutdown. By replacing the `/usr/sbin/piupsmonitor` with `/usr/bin/piup
 
 ## Software ##
 
-* `libi2c-dev`     \# Bibliothek fuer C
+* `libi2c-dev`     \# Library for C
+
+Use the following command to install the library:
+
+    sudo apt install libi2c-dev
 
 ## Configure ##
 
