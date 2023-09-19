@@ -400,7 +400,7 @@ void cleanup() {
 int main(int argc, const char* argv[]) {
   
   if (!(argc==2 && strcmp(argv[1],"poweroff")==0)) {
-    // Don't try do write pid file if the raspberry should poweroff
+    // Don't try to write pid file if the raspberry should poweroff
     write_pid_file(argv[0]);
   }
   struct sigaction action;
@@ -545,13 +545,13 @@ int main(int argc, const char* argv[]) {
     
     switch (state) {
     case STATE_NORMAL:
-      if (!status.bit.secondary_power_supply) {
+      if (!status.bit.secondary_power_supply && !status.bit.primary_power_supply) {
         shutdown_time=current_time;
         state=STATE_SHUTDOWN;
       }
       break;
     case STATE_SHUTDOWN:
-      if (status.bit.secondary_power_supply) {
+      if (status.bit.secondary_power_supply || status.bit.primary_power_supply) {
         state=STATE_NORMAL;
         break;
       }
