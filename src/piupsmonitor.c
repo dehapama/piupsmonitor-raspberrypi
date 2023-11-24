@@ -545,13 +545,13 @@ int main(int argc, const char* argv[]) {
     
     switch (state) {
     case STATE_NORMAL:
-      if (!status.bit.secondary_power_supply && !status.bit.primary_power_supply) {
+      if (!status.bit.primary_power_supply) {
         shutdown_time=current_time;
         state=STATE_SHUTDOWN;
       }
       break;
     case STATE_SHUTDOWN:
-      if (status.bit.secondary_power_supply || status.bit.primary_power_supply) {
+      if (status.bit.primary_power_supply) {
         state=STATE_NORMAL;
         break;
       }
