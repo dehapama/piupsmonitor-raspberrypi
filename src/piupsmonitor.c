@@ -127,6 +127,7 @@ enum {
 
 pid_t shutdown_cmd_pid=0;
 pid_t button_pressed_cmd_pid=0;
+pid_t status_changed_cmd_pid=0;
 
 int logprintf(int log_level, const char *fmt, ...) {
   if (log_level<=settings.log_level) {
@@ -174,7 +175,7 @@ void print_settings()
   logprintf(LOGLEVEL_NOTICE,"ShutdownCmd: %s",settings.shutdown_cmd);
   logprintf(LOGLEVEL_NOTICE,"StatusChangedCmd: %s",settings.status_changed_cmd);
   logprintf(LOGLEVEL_NOTICE,"LogLevel: %s",loglevel_label[settings.log_level]);
-  logprintf(LOGLEVEL_NOTICE,"LogLevel: %d",settings.log_status_desc);
+  logprintf(LOGLEVEL_NOTICE,"LogDescription: %d",settings.log_status_desc);
   logprintf(LOGLEVEL_NOTICE,"ButtonPressedCmd: %s",settings.button_pressed_cmd);
   logprintf(LOGLEVEL_NOTICE,"LogFile: %s",settings.logfile);
   logprintf(LOGLEVEL_NOTICE,"PID-File: %s",settings.pidfile);
@@ -272,10 +273,19 @@ int read_voltage() {
   return 0;
 }
 
+int run_command(const char* cmd) {
+  int cpid=fork();
+  if (cpid==-1) return cpid;
+  if (cpid==0) {
+    exit(execl("/bin/sh", "sh", "-c", cmd, (char *) 0));
+  }
+  return cpid;
+}
+
 void print_change_status()
 {
-  if (status.total==status_old.total) return;
-  //  unsigned char old_status=(unsigned char)status_old;
+  if (status.total==status_old.total) 
+    return;
   if (settings.log_status_desc) {
     if (status_old.bit.primary_power_supply!=status.bit.primary_power_supply)
       logprintf(LOGLEVEL_NOTICE,"Change in Primary Power Supply: %d",status.bit.primary_power_supply);
@@ -289,10 +299,16 @@ void print_change_status()
       logprintf(LOGLEVEL_NOTICE,"Change in Battery Full: %d",status.bit.battery_full);
     if (status_old.bit.button_pressed!=status.bit.button_pressed)
       logprintf(LOGLEVEL_NOTICE,"Change in Button Pressed: %d",status.bit.button_pressed);
-  }
-  else
+  } else {
     logprintf(LOGLEVEL_NOTICE,"Status changed from %02x to %02x",status_old.total,status.total);
-  logprintf(LOGLEVEL_NOTICE,"Status changed from %02x to %02x",status_old.total,status.total);
+  }
+  status_changed_cmd_pid=run_command(settings.status_changed_cmd);
+  if (status_changed_cmd_pid==-1) {
+    logprintf(LOGLEVEL_ERROR,"Starting StatusChendeCmd %s failed",settings.status_changed_cmd);
+    status_changed_cmd_pid=0;
+  } else {
+    logprintf(LOGLEVEL_NOTICE,"Successfully started StatusChangedCmd %s",settings.status_changed_cmd);
+  }
 }
 
 void print_status() {
@@ -374,15 +390,6 @@ int open_logfile()
   }
   dup2(fileno(fp),fileno(stderr));
   return 0;
-}
-
-int run_command(const char* cmd) {
-  int cpid=fork();
-  if (cpid==-1) return cpid;
-  if (cpid==0) {
-    exit(execl("/bin/sh", "sh", "-c", cmd, (char *) 0));
-  }
-  return cpid;
 }
 
 volatile sig_atomic_t done = 0;
