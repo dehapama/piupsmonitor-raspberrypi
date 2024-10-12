@@ -302,12 +302,14 @@ void print_change_status()
   } else {
     logprintf(LOGLEVEL_NOTICE,"Status changed from %02x to %02x",status_old.total,status.total);
   }
-  status_changed_cmd_pid=run_command(settings.status_changed_cmd);
-  if (status_changed_cmd_pid==-1) {
-    logprintf(LOGLEVEL_ERROR,"Starting StatusChendeCmd %s failed",settings.status_changed_cmd);
-    status_changed_cmd_pid=0;
-  } else {
-    logprintf(LOGLEVEL_NOTICE,"Successfully started StatusChangedCmd %s",settings.status_changed_cmd);
+  if (settings.status_changed_cmd[0]) {
+    status_changed_cmd_pid=run_command(settings.status_changed_cmd);
+    if (status_changed_cmd_pid==-1) {
+      logprintf(LOGLEVEL_ERROR,"Starting StatusChendeCmd %s failed",settings.status_changed_cmd);
+      status_changed_cmd_pid=0;
+    } else {
+      logprintf(LOGLEVEL_DEBUG,"Successfully started StatusChangedCmd %s",settings.status_changed_cmd);
+    }
   }
 }
 

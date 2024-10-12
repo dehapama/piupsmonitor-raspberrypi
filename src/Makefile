@@ -3,10 +3,10 @@ SOURCES=$(PROJECT).c
 CFLAGS=-O
 INCLUDE=.
 
-all: binary install 
+all: piupsmonitor install 
 
-binary: $(SOURCES)
+piupsmonitor: $(SOURCES)
 	gcc $(CFLAGS) -I$(INCLUDE) -o $(PROJECT) $(SOURCES) -li2c
 
 install: $(PROJECT)
-	sudo cp $(PROJECT) /usr/sbin
+	cp $(PROJECT) /usr/sbin
