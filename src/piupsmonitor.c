@@ -510,6 +510,23 @@ int main(int argc, const char* argv[]) {
         button_pressed_cmd_pid=0;
       }
     }
+    if (status_changed_cmd_pid) {
+      int wstatus;
+      pid_t w=waitpid(status_changed_cmd_pid,&wstatus,WNOHANG);
+      if (w!=0) {
+        if (w==-1) {
+          cleanup();
+          perror("waitpid");
+          exit(EXIT_FAILURE);
+        }
+        if (WIFEXITED(wstatus)) {
+          logprintf(LOGLEVEL_NOTICE,
+                    "StatusChangedCmd %s exited with status %d",
+                    settings.status_changed_cmd, WEXITSTATUS(wstatus));
+        }
+        status_changed_cmd_pid=0;
+      }
+    }
 
     // read voltage
     if (current_time!=voltage_time && settings.log_level>=LOGLEVEL_NOTICE) {
